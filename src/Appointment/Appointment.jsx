@@ -1,92 +1,117 @@
 import React, { useState } from "react";
-import { v4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
+import doctorImg from '../assets/doc752.png';
 
 export default function Appointment() {
   const [appoint, setAppoint] = useState([]);
-  const [date, setDate] = useState();
-  const [title, setTitle] = useState();
-  const [day, setDay] = useState();
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
 
-  function name(e) {
+  function handleSubmit(e) {
     e.preventDefault();
-    const transaction = {
-      id: new Date(),
+    const newAppt = {
+      id: uuidv4(), 
       title: title,
-      date: new Date().getDate(),
+      date: date, 
+      day: new Date(date).getDay(), 
       isStar: false,
     };
-    setAppoint((prev) => [...prev, transaction]);
-    setDay(new Date().getDay());    
+    setAppoint((prev) => [...prev, newAppt]);
+    setTitle(""); 
+    setDate("");
   }
 
-  function nameDel(params){
-    setAppoint((p) =>
-      p.map((e) => (e.id == params ? { ...e, isStar: !e.isStar } : e))
+  function toggleStar(id) {
+    setAppoint((prev) =>
+      prev.map((appt) =>
+        appt.id === id ? { ...appt, isStar: !appt.isStar } : appt
+      )
     );
   }
+
+  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
   return (
-    <div className="min-w-screen min-h-full m-4">
-      <div className="max-w-500 p-8 pt-20 pb-20 min-h-355 mx-auto bg-gradient-to-b from-pink-200 to-purple-400 shadow-[0_0_10px_rgba(2,1,4,0.2)]">
-        <div className="min-w-800 mx-auto bg-white p-8 rounded">
-          <div className="flex gap-14 p-5 justify-between">
-            <div className="w-600 flex flex-col items-start h-auto">
-              <h1 className="float-left w-500 font-bold text-2xl m-2 ml-0">
-                Add Appointment
-              </h1>
-              <form className="flex flex-col items-start" onSubmit={name}>
-                <label className="float-left " htmlFor="title">
-                  TITLE
+    <div className="min-h-screen bg-gradient-to-br from-pink-200 to-purple-400 p-6">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-8">
+        <div className="flex flex-col lg:flex-row gap-12 items-start">
+          <div className="flex-1 max-w-md">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Add Appointment</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                  Title
                 </label>
-                <br />
                 <input
-                  className="p-2 w-80 border-2"
                   id="title"
                   type="text"
+                  value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Title"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black"
+                  placeholder="Enter appointment title"
+                  required
                 />
-                <br />
-                <label className="float-left text-1" htmlFor="date">
-                  DATE
+              </div>
+              <div>
+                <label htmlFor="date" className="block text-sm font-medium text-gray-700  mb-1">
+                  Date
                 </label>
-                <br />
                 <input
-                  className="p-2 w-80 border-2"
                   id="date"
                   type="date"
-                  onInput={(e) => setDate(e.target.value)}
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full text-black p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  required
                 />
-                <br />
-                <button
-                  className="rounded bg-purple-600 text-white w-11 float-left"
-                  id="button"
-                >
-                  Add
-                </button>
-                <br />
-              </form>
-            </div>
-            <div className="w-400">
-              <img src="doc752.png" alt="Error" height={300} width={400}></img>
-            </div>
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-200"
+              >
+                Add Appointment
+              </button>
+            </form>
           </div>
-          <hr />
-          <div className="flex p-2 ml-3 flex-col items-start gap-3">
-            <h2 className="font-bold">Appointments</h2>
-            {appoint.map((e) => (
-              <div className="rounded w-48 shadow-[0_0_6px_grey] flex justify-between">
+          
+          <div className="lg:w-96 flex-shrink-0">
+            <img 
+              src={doctorImg} 
+              alt="Doctor" 
+              className="w-full h-64 lg:h-80 object-cover rounded-lg shadow-md"
+            />
+          </div>
+        </div>
+
+        <hr className="my-12 border-gray-200" />
+
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Appointments</h2>
+          <div className="space-y-4">
+            {appoint.map((appt) => (
+              <div
+                key={appt.id}
+                className="flex justify-between items-center p-6 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100"
+              >
                 <div>
-                  <h5 className="font-bold">{e.title}</h5>
-                  <p>
-                    Date:{e.date},{day==1?"Monday":day==2?"Tuesday":day==3?"Wednesday":day==4?"Thursday":day==5?"Friday":day==6?"Saturday":"Sunday"}
+                  <h5 className="text-lg font-semibold text-gray-900">{appt.title}</h5>
+                  <p className="text-gray-600 mt-1">
+                    Date: {appt.date} ({dayNames[appt.day]})
                   </p>
                 </div>
-                <button onClick={()=>nameDel(e.id)}>
-                  <span>{e.isStar ? "⭐" : "☆"}</span>
+                <button
+                  onClick={() => toggleStar(appt.id)}
+                  className="p-2 rounded-full hover:bg-purple-100 transition-colors duration-200"
+                  aria-label="Toggle star"
+                >
+                  <span className="text-2xl">{appt.isStar ? "⭐" : "☆"}</span>
                 </button>
               </div>
             ))}
           </div>
+          {appoint.length === 0 && (
+            <p className="text-gray-500 text-center py-12">No appointments yet. Add one above!</p>
+          )}
         </div>
       </div>
     </div>
